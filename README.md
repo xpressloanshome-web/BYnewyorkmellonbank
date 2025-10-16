@@ -1,2 +1,292 @@
 # BYnewyorkmellonbank
 bank website
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bank UI </BYBANK>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin:0; background:#f4f6f8; color:#0b2545; }
+    .app { max-width:980px; margin:28px auto; background:#fff; border-radius:12px; box-shadow:0 8px 30px rgba(7,22,52,.08); overflow:hidden; }
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #eef2f6}
+    nav button{margin-right:8px;padding:8px 12px;border-radius:8px;border:1px solid transparent;background:#0b63ff;color:#fff;cursor:pointer}
+    nav button.ghost{background:transparent;color:#0b2545;border-color:#e6eefb}
+    .watermark{position:absolute;right:18px;top:18px;padding:6px 8px;border-radius:6px;background:#ffefc7;color:#5a3a00;font-weight:700;font-size:12px}
+    main{display:flex;gap:24px;padding:24px}
+    .col{flex:1}
+    .card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(11,38,69,.04);border:1px solid #f0f4f8}
+    .balance-large{font-size:28px;font-weight:700;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #f4f6f8;text-align:left;font-size:14px}
+    th{color:#637085;font-weight:600;font-size:13px}
+    .credit{color:#0a7a3b;font-weight:600}
+    .debit{color:#b02a1a;font-weight:600}
+    .muted{color:#637085;font-size:13px}
+    .transfer-details{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:8px;background:#0b63ff;color:#fff;text-decoration:none;border:none;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid #0b63ff;color:#0b63ff}
+    .processing {display:flex;align-items:center;gap:12px}
+    .spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(11,99,255,.2);border-top-color:#0b63ff;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .approved {color:#0a7a3b;font-weight:700;font-size:16px}
+    footer{padding:12px 24px;border-top:1px solid #eef2f6;color:#8394a6;font-size:13px;text-align:center}
+    .small-note{font-size:12px;color:#9aa7bb;margin-top:8px}
+    .danger{color:#b02a1a;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="no watermark"> REAL FINANCIAL DOCUMENT</div>
+
+  <div class="app" role="application" aria-label="Bank account
+">
+    <header>
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='38' viewBox='0 0 24 24'%3E%3Crect fill='%230b63ff' width='24' height='24' rx='6'/%3E%3Ctext x='12' y='16' font-size='12' font-family='Arial' fill='white' text-anchor='middle'%3EBK%3C/text%3E%3C/svg%3E" alt="logo" style="border-radius:6px"/>
+        <div>
+          <div style="font-weight:700">ActiveBank UI</div>
+          <div class="muted">legit bank account</div>
+        </div>
+      </div>
+      <nav>
+        <button id="btnOverview">Overview</button>
+        <button id="btnTransfer" class="ghost">Transfer</button>
+        <button id="btnApproved" class="ghost">Transfer Approved</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Overview / Balance & transactions -->
+      <section class="col" id="pageOverview">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="muted">Available balance</div>
+              <div class="balance-large" id="availableBalance">$575,000.00</div>
+              <div class="small-note">Account: <strong>DEMO-90665432190</strong>  •  Type: Checking</div>
+            </div>
+            <div style="text-align:right">
+              <div class="muted">Owner</div>
+              <div style="font-weight:700">[Sender — Chad Robert Kroeger]</div>
+              <div class="muted">IBAN: [90665432190]</div>
+            </div>
+          </div>
+
+          <hr style="margin:18px 0;border:none;border-top:1px solid #f4f6f8"/>
+
+          <div class="muted" style="margin-bottom:8px;font-weight:600">Recent Transactions</div>
+
+          <table aria-label="Transactions table">
+            <thead>
+              <tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Balance</th></tr>
+            </thead>
+            <tbody id="txBody">
+              <!-- sample rows -->
+            </tbody>
+          </table>
+
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center">
+            <div class="muted">Showing 12 entries</div>
+            <div>
+              <button class="btn secondary" onclick="resetMock()">Reset Mock</button>
+              <button class="btn" onclick="goTo('transfer')">Make Transfer</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transfer Processing -->
+      <section class="col" id="pageTransfer" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+              <div style="font-weight:700">Transfer Processing</div>
+              <div class="muted">This view shows the transfer details while processing.</div>
+            </div>
+            <div style="text-align:right">
+              <div class="muted">Date</div>
+              <div id="transferDate"></div>
+            </div>
+          </div>
+
+          <div class="transfer-details" style="margin-bottom:12px">
+            <div class="card" style="padding:12px">
+              <div class="muted">From</div>
+              <div style="font-weight:700" id="fromName">[Sender — Chad Robert Kroeger]</div>
+              <div class="muted" id="fromIban">IBAN: [Chad Robert Kroeger]</div>
+            </div>
+            <div class="card" style="padding:12px">
+              <div class="muted">To</div>
+              <div style="font-weight:700" id="toName">[Recipient — Replace]</div>
+              <div class="muted" id="toIban">IBAN: [Chad Robert Kroeger </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="muted">Amount</div>
+              <div style="font-weight:700;font-size:20px">$25,000.00</div>
+              <div class="small-note">Reference: TRANS-2025-0001</div>
+            </div>
+            <div style="text-align:right">
+              <div class="muted">Status</div>
+              <div class="processing"><div class="spinner" aria-hidden="true"></div><div id="processingText">Processing — awaiting network confirmation</div></div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px">
+            <button class="btn" onclick="simulateApproval()">Force Approve (cleared)</button>
+            <button class="btn secondary" onclick="goTo('overview')">Cancel</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Transfer Approved -->
+      <section class="col" id="pageApproved" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:700">Transfer Approved</div>
+              <div class="muted">The transfer has completed successfully.</div>
+            </div>
+            <div style="text-align:right">
+              <div class="muted">Confirmation</div>
+              <div style="font-weight:700">CONF-2025-0001</div>
+            </div>
+          </div>
+
+          <hr style="margin:12px 0;border:none;border-top:1px solid #f4f6f8"/>
+
+          <div style="display:flex;gap:18px">
+            <div style="flex:1">
+              <div class="muted">Transferred</div>
+              <div style="font-weight:700;font-size:20px">$25,000.00</div>
+              <div class="small-note">To: <strong id="approvedTo">[Recipient — Replace]</strong></div>
+            </div>
+            <div style="flex:1">
+              <div class="muted">New Available Balance</div>
+              <div id="newBalance" style="font-weight:700;font-size:20px;color:#0b2545">$550,000.00</div>
+              <div class="small-note">As of <span id="approvedDate"></span></div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <div class="approved">✓ Payment completed and funds debited.</div>
+          </div>
+
+          <div style="margin-top:16px">
+            <button class="btn" onclick="goTo('overview')">Back to Overview</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+    </footer>
+  </div>
+
+<script>
+  // good transaction data generator
+  const txEl = document.getElementById('txBody');
+  const initialBalance = 575000.00;
+  let balance = initialBalance;
+  const sampleTx = [
+    {date:'2025-10-12',desc:'Wire - Client payment',type:'credit',amt:15000},
+    {date:'2025-10-11',desc:'POS - Office Supplies',type:'debit',amt:124.5},
+    {date:'2025-10-09',desc:'ACH - Payroll',type:'debit',amt:5200},
+    {date:'2025-10-08',desc:'Interest',type:'credit',amt:45.12},
+    {date:'2025-10-07',desc:'Transfer to Savings',type:'debit',amt:20000},
+    {date:'2025-10-03',desc:'Deposit - Client A',type:'credit',amt:7400},
+    {date:'2025-09-28',desc:'Subscription - Software',type:'debit',amt:39.99},
+    {date:'2025-09-25',desc:'Invoice #1023',type:'credit',amt:12000},
+    {date:'2025-09-20',desc:'ATM Withdrawal',type:'debit',amt:300},
+    {date:'2025-09-15',desc:'Refund - Vendor',type:'credit',amt:600},
+    {date:'2025-09-10',desc:'Check 4521',type:'debit',amt:820.5},
+    {date:'2025-09-05',desc:'POS - Travel',type:'debit',amt:420}
+  ];
+
+  function formatMoney(n){ return '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  function renderTx(){
+    txEl.innerHTML = '';
+    balance = initialBalance;
+    for(let i=0;i<sampleTx.length;i++){
+      const t = sampleTx[i];
+      // apply in chronological order (earliest first) -> show newest first by iterating reverse
+    }
+    // We'll show newest first and compute a progressive balance backwards
+    let progressive = initialBalance;
+    // Recreate reverse so table shows newest at top
+    const rows = [];
+    for(let i=0;i<sampleTx.length;i++){ rows.unshift(sampleTx[i]); }
+    // Now compute running balances starting from initialBalance minus sum of older txs
+    // For display purposes we'll compute decreasing balance as we render
+    let running = initialBalance;
+    for(let i=0;i<rows.length;i++){
+      const r = rows[i];
+      const amount = r.amt;
+      const isCredit = r.type==='credit';
+      const displayAmt = (isCredit? '+' : '-') + formatMoney(amount).replace('$','');
+      running = isCredit ? (running + amount) : (running - amount);
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+r.date+'</td><td>'+r.desc+'</td><td class="muted">'+r.type.toUpperCase()+'</td><td class="'+(isCredit?'credit':'debit')+'">'+formatMoney(amount)+'</td><td>'+formatMoney(running)+'</td>';
+      txEl.appendChild(tr);
+    }
+  }
+
+  // Navigation
+  function goTo(page){
+    document.getElementById('pageOverview').style.display = (page==='overview') ? '' : 'none';
+    document.getElementById('pageTransfer').style.display = (page==='transfer') ? '' : 'none';
+    document.getElementById('pageApproved').style.display = (page==='approved') ? '' : 'none';
+    // update nav button styles
+    document.getElementById('btnOverview').className = page==='overview' ? '' : 'ghost';
+    document.getElementById('btnTransfer').className = page==='transfer' ? '' : 'ghost';
+    document.getElementById('btnApproved').className = page==='approved' ? '' : 'ghost';
+  }
+
+  document.getElementById('btnOverview').addEventListener('click', ()=>goTo('overview'));
+  document.getElementById('btnTransfer').addEventListener('click', ()=>goTo('transfer'));
+  document.getElementById('btnApproved').addEventListener('click', ()=>goTo('approved'));
+
+  // Simulate processing -> approval
+  function simulateApproval(){
+    // populate transfer metadata (demo placeholders)
+    document.getElementById('processingText').textContent = 'Processing — network confirmations in progress';
+    document.getElementById('transferDate').textContent = new Date().toLocaleString();
+    // after 1.8s show approved page and update balances
+    setTimeout(()=> {
+      // Adjust balances: initial 575,000 - 25,000 = 550,000
+      const approvedBalance = 550000.00;
+      document.getElementById('newBalance').textContent = formatMoney(approvedBalance);
+      document.getElementById('approvedDate').textContent = new Date().toLocaleString();
+      document.getElementById('approvedTo').textContent = document.getElementById('toName').textContent;
+      // Update the overview display balance to new balance
+      document.getElementById('availableBalance').textContent = formatMoney(approvedBalance);
+      // Optionally append the transfer to the transactions table
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+new Date().toISOString().slice(0,10)+'</td><td>Transfer to '+document.getElementById('toName').textContent+'</td><td class="muted">DEBIT</td><td class="debit">'+formatMoney(25000)+'</td><td>'+formatMoney(approvedBalance)+'</td>';
+      txEl.prepend(tr);
+      goTo('approved');
+    }, 1800);
+  }
+
+  function resetbanksite(){
+    document.getElementById('availableBalance').textContent = formatMoney(initialBalance);
+    renderTx();
+    goTo('overview');
+  }
+
+  // Initialize placeholders
+  (function init(){
+    // Replace these placeholders safely — use real names/IBANs 
+    document.getElementById('fromName').textContent = '[Chad Robert kreoger]';
+    document.getElementById('toName').textContent = '[Second Name Placeholder]';
+    document.getElementById('fromIban').textContent = 'IBAN: [Janine Hauck IBAN 95870500004533032490';
+    document.getElementById('toIban').textContent = 'IBAN: Janine Hauck IBAN 95870500004533032490';
+    document.getElementById('transferDate').textContent = new Date(15-10-2025).toLocaleString();
+    renderTx();
+  })();
+</script>
+</body>
+</html>
